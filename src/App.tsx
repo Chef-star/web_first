@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Survey from './components/Survey';
 import DailyMenu from './components/DailyMenu';
 import AdminPanel from './components/AdminPanel';
+import AdminLogin from './components/AdminLogin';
 import { MenuItem } from './types';
 
 const initialMenu: MenuItem[] = [
@@ -11,25 +12,25 @@ const initialMenu: MenuItem[] = [
     description: 'Riz au poisson avec légumes, plat national sénégalais préparé avec du riz brisé et du poisson frais',
     price: 15.50,
     category: 'main',
-    imageUrl: 'https://images.unsplash.com/photo-1567982047351-76b6f93e38ee?auto=format&fit=crop&q=80&w=500',
+    imageUrl: '/images/thiebou-dieun.jpg',
     available: true,
   },
   {
     id: '2',
     name: 'Mafé',
-    description: 'Sauce à base de viande mijotée dans une sauce aux arachides, servi avec du riz',
+    description: 'Ragoût à base de viande mijotée dans une sauce aux arachides, servi avec du riz',
     price: 14.00,
     category: 'main',
-    imageUrl: 'https://images.unsplash.com/photo-1515516969-d4008cc6241a?auto=format&fit=crop&q=80&w=500',
+    imageUrl: '/images/mafe.jpg',
     available: true,
   },
   {
     id: '3',
-    name: 'Mbaxal',
-    description: 'Riz blanc accompagné de poisson fumé et de légumes, parfumé aux feuilles de laurier',
+    name: 'Dibi',
+    description: "Viande d'agneau halal ou tranche de veau",
     price: 13.50,
     category: 'main',
-    imageUrl: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&q=80&w=500',
+    imageUrl: '/images/Dibi.jpg',
     available: true,
   },
 ];
@@ -37,10 +38,18 @@ const initialMenu: MenuItem[] = [
 function App() {
   const [showSurvey, setShowSurvey] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [menu, setMenu] = useState<MenuItem[]>(initialMenu);
 
   const handleUpdatePrices = (updatedMenu: MenuItem[]) => {
     setMenu(updatedMenu);
+  };
+
+  const handleLogin = (success: boolean) => {
+    setIsAuthenticated(success);
+    if (success) {
+      setShowAdmin(true);
+    }
   };
 
   return (
@@ -49,18 +58,38 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold text-gray-900">Agne you Khéré</h1>
-            <button
-              onClick={() => setShowAdmin(!showAdmin)}
-              className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
-            >
-              {showAdmin ? 'Retour au Menu' : 'Administration'}
-            </button>
+            {!showAdmin && isAuthenticated && (
+              <button
+                onClick={() => setShowAdmin(true)}
+                className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              >
+                Administration
+              </button>
+            )}
+            {showAdmin && (
+              <button
+                onClick={() => setShowAdmin(false)}
+                className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              >
+                Retour au Menu
+              </button>
+            )}
+            {!isAuthenticated && !showAdmin && (
+              <button
+                onClick={() => setShowAdmin(true)}
+                className="text-gray-600 hover:text-gray-800"
+              >
+                ⚙️
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-12">
-        {showAdmin ? (
+        {showAdmin && !isAuthenticated ? (
+          <AdminLogin onLogin={handleLogin} />
+        ) : showAdmin ? (
           <AdminPanel menu={menu} onUpdatePrices={handleUpdatePrices} />
         ) : (
           <>
